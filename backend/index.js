@@ -12,6 +12,7 @@ import applicationRouter from "./routes/application.routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import crypto from "crypto";
 
 const app = express();
 
