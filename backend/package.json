@@ -1,13 +1,16 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "type": "module",
   "description": "MERN backend for Job Portal",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.10.0",

@@ -1,8 +1,8 @@
+import "./config.js";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./utils/db.js";
-import dotenv from "dotenv";
 
 import userRouter from "./routes/user.routes.js";
 import companyRouter from "./routes/company.routes.js";
@@ -12,8 +12,6 @@ import applicationRouter from "./routes/application.routes.js";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-
-dotenv.config();
 
 const app = express();
 
