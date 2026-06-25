@@ -1,5 +1,5 @@
-// Use environment variable for backend base URL
-const API_BASE = import.meta.env.VITE_API_BASE
+// Use environment variable for backend base URL. Default to relative root in production.
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 export const JOB_API_END_POINT = `${API_BASE}/job`;
 export const APPLICATION_API_END_POINT = `${API_BASE}/application`;

@@ -51,7 +51,7 @@ const frontendPath = path.resolve(__dirname, "..", "frontend", "dist");
 if (fs.existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
 
-  app.get("*", (req, res) => {
+  app.use((req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 
@@ -67,7 +67,7 @@ if (fs.existsSync(frontendPath)) {
   try {
     await connectDB();
 
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
       console.log(
         `🚀 Server running on port ${PORT}`
       );

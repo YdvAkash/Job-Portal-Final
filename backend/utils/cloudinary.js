@@ -1,15 +1,28 @@
 import { v2 as cloudinary } from "cloudinary";
 
-// Validate required environment variables
-if (!process.env.CLOUD_NAME || !process.env.CLOUD_API_KEY || !process.env.CLOUD_API_SECRET) {
-  throw new Error("Missing Cloudinary configuration in environment variables.");
+const hasCloudinaryConfig =
+  process.env.CLOUD_NAME && process.env.CLOUD_API_KEY && process.env.CLOUD_API_SECRET;
+
+if (!hasCloudinaryConfig) {
+  console.warn("Cloudinary is not configured. Using fallback uploader.");
 }
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
+const cloudinaryClient = hasCloudinaryConfig
+  ? cloudinary
+  : {
+      uploader: {
+        upload: async () => ({
+          secure_url: "https://via.placeholder.com/300x300?text=No+Image",
+        }),
+      },
+    };
 
-export default cloudinary;
+if (hasCloudinaryConfig) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET,
+  });
+}
+
+export default cloudinaryClient;

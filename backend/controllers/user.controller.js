@@ -7,8 +7,13 @@ export const register = async (req, res) => {
   try {
     const { fullName, email, password, phoneNumber, role } = req.body;
     const profileImage = req.files?.profileImage?.[0];
-    const fileUri = getDataUri(profileImage);
-    const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+    let profileImageUrl = null;
+
+    if (profileImage) {
+      const fileUri = getDataUri(profileImage);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+      profileImageUrl = cloudResponse.secure_url;
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await UserModel.create({
@@ -18,7 +23,7 @@ export const register = async (req, res) => {
       phoneNumber,
       role,
       profile: {
-        profileImage: cloudResponse.secure_url,
+        profileImage: profileImageUrl,
       },
     });
     res.status(201).json({
