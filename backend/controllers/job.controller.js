@@ -115,24 +115,47 @@ export const getAllJob = async (req, res) => {
   try {
     const keyword = req.query.keyword?.trim();
     let query = {};
-    
+
+    // Helper to escape user input for safe RegExp construction
+    const escapeRegExp = (string) => {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    };
+
     if (keyword && keyword.length > 0) {
-      const regex = new RegExp(keyword, 'i');   
-      query = {
-        $or: [
-          { title: regex },
-          { description: regex },
-          { location: regex },
-          { jobType: regex },
-        ],
-      };
+      // Support alternation tokens joined by '|' (e.g. from the frontend)
+      const tokens = keyword.split("|").map((t) => t.trim()).filter(Boolean);
+
+      const orConditions = [];
+      tokens.forEach((token) => {
+        const safe = escapeRegExp(token);
+        const regex = new RegExp(safe, 'i');
+        orConditions.push({ title: regex });
+        orConditions.push({ description: regex });
+        orConditions.push({ location: regex });
+        orConditions.push({ jobType: regex });
+      });
+
+      if (orConditions.length > 0) {
+        query = { $or: orConditions };
+      }
     }
     
-    const jobs = await JobModel.find(query)
-      .populate("company")
-      .populate("createdBy")
-      .sort({ createdAt: -1 });
-    if (!jobs.length) {
+    // Support pagination to avoid returning excessively large payloads
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, parseInt(req.query.limit) || 20);
+    const skip = (page - 1) * limit;
+
+    const [total, jobs] = await Promise.all([
+      JobModel.countDocuments(query),
+      JobModel.find(query)
+        .populate("company")
+        .populate("createdBy")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+    ]);
+
+    if (!jobs || jobs.length === 0) {
       return res.status(404).json({
         message: "No jobs available",
         success: false,
@@ -141,6 +164,9 @@ export const getAllJob = async (req, res) => {
 
     return res.status(200).json({
       jobs,
+      total,
+      page,
+      limit,
       success: true,
     });
   } catch (e) {

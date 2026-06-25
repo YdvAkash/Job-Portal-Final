@@ -1,0 +1,9 @@
+
+> backend@1.0.0 start
+> node index.js
+
+◇ injected env (6) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .ENV // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+✅ Frontend found and being served: /home/ubuntu/Job-Portal-Final/frontend/dist
+[1m[32mDatabase connected successfully! 🌱[0m
+🚀 Server running on port 8000

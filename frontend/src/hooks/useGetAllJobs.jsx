@@ -15,13 +15,16 @@ function useGetAllJobs() {
       const fetchAllJobs = async () => {
         setIsLoading(true);
         try {
-          // Construct the API URL based on whether homeSearchJobByText is empty
-          const url = homeSearchJobByText
-            ? `${JOB_API_END_POINT}/all?keyword=${homeSearchJobByText}`
-            : `${JOB_API_END_POINT}/all`;
+          // Debug: log the search token and params
+          console.log("useGetAllJobs: homeSearchJobByText=", homeSearchJobByText);
+          // Default to first page with modest limit to keep payload small
+          const params = homeSearchJobByText
+            ? { keyword: homeSearchJobByText, page: 1, limit: 20 }
+            : { page: 1, limit: 20 };
+          console.log("useGetAllJobs: requesting", `${JOB_API_END_POINT}/all`, params);
 
           // Make the request WITHOUT withCredentials for public endpoints
-          const res = await axios.get(url);
+          const res = await axios.get(`${JOB_API_END_POINT}/all`, { params });
 
           if (res.data.success) {
             dispatch(setAllJobs(res.data.jobs));
