@@ -1,4 +1,5 @@
 import JobModel from "../models/job.model.js";
+import ApplicationModel from "../models/application.model.js";
 //for admins
 export const createJob = async (req, res) => {
   try {
@@ -73,7 +74,7 @@ export const getJobsCreated = async (req, res) => {
         success: false,
       });
     }
-    return res.status(201).json({
+    return res.status(200).json({
       jobsCreated,
       success: true,
     });

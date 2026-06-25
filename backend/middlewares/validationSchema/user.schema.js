@@ -24,22 +24,18 @@ export const signInSchema = z.object({
 });
 
 export const updateProfileSchema = z.object({
-  fullName: z.string().optional(),
-  email: z.string().email("Invalid email address").optional(),
+  fullName: z.string().optional().or(z.literal("")),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
     .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
     .regex(/[a-z]/, "Password must contain at least one lowercase letter")
     .regex(/[0-9]/, "Password must contain at least one number")
-    .optional(),
-  phoneNumber: z
-    .string()
-    .refine((val) => val.toString().length === 10, {
-      message: "Phone number must be exactly 10 digits",
-    })
-    .optional(),
-  bio: z.string().optional(),
-  skills: z.union([z.string(), z.array(z.string())]).optional(),
-  resume: z.string().optional(),
+    .optional()
+    .or(z.literal("")),
+  phoneNumber: z.string().optional().or(z.literal("")),
+  bio: z.string().optional().or(z.literal("")),
+  skills: z.union([z.string(), z.array(z.string())]).optional().or(z.literal("")),
+  resume: z.string().optional().or(z.literal("")),
 });

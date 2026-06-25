@@ -1,30 +1,71 @@
 import React, { useEffect, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import AdminJobsTable from "../../components/shared/AdminJobsTable";
 import { setSearchJobByText } from "../../store/jobSlice";
+import { Plus, Search, Briefcase } from "lucide-react";
+
 function AdminJobPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [input, setInput] = useState("");
+
   useEffect(() => {
     dispatch(setSearchJobByText(input));
-  },[input]);
+  }, [input, dispatch]);
+
   return (
-    <div className="max-w-6xl mx-auto my-10">
-      <div className="flex items-center justify-between my-5">
-        <Input
-          className="w-fit"
-          placeholder="Filter by name"
-          onChange={(e) => setInput(e.target.value)}
-        />
-        <Button onClick={() => navigate("/admin/job/create")}>
-        New Job
-        </Button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ background: "linear-gradient(135deg, #6a38c2, #7209b7)" }}
+              >
+                <Briefcase className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 font-outfit">Job Listings</h1>
+                <p className="text-sm text-gray-500">Manage your posted job openings</p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate("/admin/job/create")}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5"
+              style={{
+                background: "linear-gradient(135deg, #6a38c2, #7209b7)",
+                boxShadow: "0 4px 12px rgba(106,56,194,0.4)",
+              }}
+            >
+              <Plus className="w-4 h-4" />
+              Post New Job
+            </button>
+          </div>
+
+          {/* Search Bar */}
+          <div className="mt-5 relative max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Search by job title or company..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all"
+            />
+          </div>
+        </div>
       </div>
-      <AdminJobsTable />
+
+      {/* Table Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <AdminJobsTable />
+        </div>
+      </div>
     </div>
   );
 }
