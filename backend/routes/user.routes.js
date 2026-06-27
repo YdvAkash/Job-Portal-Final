@@ -11,6 +11,8 @@ import {
   logout,
   register,
   updateProfile,
+  toggleSaveJob,
+  verifyEmail,
 } from "../controllers/user.controller.js";
 import isAuthenticated from "../middlewares/auth.js";
 import {  uploadMiddleware } from "../middlewares/multer.js";
@@ -30,5 +32,13 @@ userRouter.put(
   isAuthenticated,
   updateProfile
 );
+
+userRouter.post(
+  "/profile/save/:id",
+  isAuthenticated,
+  toggleSaveJob
+);
+
+userRouter.get("/verify-email/:token", verifyEmail);
 
 export default userRouter;

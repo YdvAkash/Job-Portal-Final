@@ -1,0 +1,5 @@
+◇ injected env (8) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .ENV // tip: ◈ secrets for agents [www.dotenvx.com]
+✅ Frontend found and being served: /home/ubuntu/Job-Portal-Final/frontend/dist
+[1m[32mDatabase connected successfully! 🌱[0m
+🚀 Server running on port 8000

@@ -16,6 +16,8 @@ import CreateJobPage from "./pages/admin/CreateJobPage";
 import ApplicantsPage from "./pages/admin/ApplicantsPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import VerifyEmail from "./pages/VerifyEmail";
 
 const router = createBrowserRouter([
   {
@@ -39,6 +41,7 @@ const router = createBrowserRouter([
       {
         element: <ProtectedRoute allowedRoles={["recruiter"]} />,
         children: [
+          { path: "admin/dashboard", element: <AdminDashboard /> },
           { path: "admin/companies", element: <CompaniesPage /> },
           { path: "admin/companies/create", element: <CreateCompanyPage /> },
           { path: "admin/job/create", element: <CreateJobPage /> },
@@ -72,6 +75,10 @@ const router = createBrowserRouter([
         <SignUp />
       </ProtectedRoute>
     ),
+  },
+  {
+    path: "verify-email/:token",
+    element: <VerifyEmail />,
   },
 
   // Global catch-all route (for paths outside the layout)

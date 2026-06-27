@@ -13,6 +13,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import AppliedJobTable from "../components/shared/AppliedJobTable";
+import SavedJobs from "../components/shared/SavedJobs";
 import UpdateProfileModal from "../components/shared/UpdateProfileModal";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
@@ -22,6 +23,7 @@ import { USER_API_END_POINT } from "../utils/const";
 
 function ProfilePage() {
   const [open, setOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("applied");
   const user = useSelector((store) => store.auth.user);
   const dispatch = useDispatch();
 
@@ -283,15 +285,38 @@ function ProfilePage() {
           </div>
         </div>
 
-        {/* Applied Jobs Section */}
+        {/* Tabs for Applied & Saved Jobs */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-              <Briefcase className="w-4 h-4 text-purple-600" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900">Applied Jobs</h2>
+          <div className="flex items-center gap-6 border-b border-gray-100 mb-6">
+            <button
+              onClick={() => setActiveTab("applied")}
+              className={`pb-4 text-lg font-bold transition-colors relative ${
+                activeTab === "applied" ? "text-purple-700" : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              Applied Jobs
+              {activeTab === "applied" && (
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab("saved")}
+              className={`pb-4 text-lg font-bold transition-colors relative ${
+                activeTab === "saved" ? "text-purple-700" : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              Saved Jobs
+              {activeTab === "saved" && (
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full" />
+              )}
+            </button>
           </div>
-          <AppliedJobTable />
+          
+          {activeTab === "applied" ? (
+            <AppliedJobTable />
+          ) : (
+            <SavedJobs />
+          )}
         </div>
       </div>
 

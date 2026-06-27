@@ -56,9 +56,16 @@ function UpdateProfileModal({ open, setOpen }) {
         }
       );
       if (response.data?.data) {
-        dispatch(setUser(response.data.data));
-        toast.success("Profile updated successfully!");
-        setOpen(false);
+        if (response.data.requireReverification) {
+          dispatch(setUser(null));
+          toast.success(response.data.message);
+          setOpen(false);
+          window.location.href = "/login";
+        } else {
+          dispatch(setUser(response.data.data));
+          toast.success("Profile updated successfully!");
+          setOpen(false);
+        }
       }
     } catch (error) {
       console.error("Error updating profile:", error);

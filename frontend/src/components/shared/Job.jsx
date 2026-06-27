@@ -3,9 +3,41 @@ import { Bookmark, MapPin, Clock, DollarSign, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
+import axios from "axios";
+import { USER_API_END_POINT } from "../../utils/const";
+import { setUser } from "../../store/authSlice";
 
 const Job = ({ job, index = 0 }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((store) => store.auth);
+
+  const isSaved = user?.profile?.savedJobs?.includes(job?._id);
+
+  const handleSaveJob = async (e) => {
+    e.stopPropagation();
+    if (!user) {
+      toast.error("Please login to save jobs");
+      return;
+    }
+    if (user.role === "recruiter") {
+      toast.error("Recruiters cannot save jobs");
+      return;
+    }
+    try {
+      const res = await axios.post(`${USER_API_END_POINT}/profile/save/${job._id}`, {}, {
+        withCredentials: true
+      });
+      if (res.data.success) {
+        toast.success(res.data.message);
+        dispatch(setUser(res.data.user));
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error saving job");
+    }
+  };
 
   const daysAgoFunction = (mongodbTime) => {
     const createdAt = new Date(mongodbTime);
@@ -64,12 +96,14 @@ const Job = ({ job, index = 0 }) => {
             {daysAgoFunction(job?.createdAt)}
           </span>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-purple-600 hover:bg-purple-50 transition-all duration-200"
+            onClick={handleSaveJob}
+            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 ${
+              isSaved 
+                ? "text-purple-600 bg-purple-100 border border-purple-200" 
+                : "text-gray-400 hover:text-purple-600 hover:bg-purple-50"
+            }`}
           >
-            <Bookmark className="w-4 h-4" />
+            <Bookmark className={`w-4 h-4 ${isSaved ? "fill-purple-600" : ""}`} />
           </button>
         </div>
       </div>

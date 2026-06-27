@@ -55,7 +55,7 @@ function SignUp() {
         withCredentials: true,
       });
       if (res.data.success) {
-        toast.success(res.data.message || "Account created! Please sign in.");
+        toast.success(res.data.message || "Account created! Please check your email to verify your account.");
         navigate("/login");
       }
     } catch (err) {

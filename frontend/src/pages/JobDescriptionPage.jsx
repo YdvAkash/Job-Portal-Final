@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import useGetJobById from "../hooks/useGetJobById.jsx";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { setUser } from "../store/authSlice";
 import {
   MapPin,
   Clock,
@@ -18,6 +19,7 @@ import {
   CheckCircle,
   ExternalLink,
   Calendar,
+  Bookmark,
 } from "lucide-react";
 
 const JobDescriptionPage = () => {
@@ -67,6 +69,30 @@ const JobDescriptionPage = () => {
       toast.error(error.response?.data?.message || "Failed to apply");
     } finally {
       setApplying(false);
+    }
+  };
+
+  const isSaved = user?.profile?.savedJobs?.includes(jobId);
+
+  const handleSaveJob = async () => {
+    if (!user) {
+      toast.error("Please login to save jobs");
+      return;
+    }
+    if (user.role === "recruiter") {
+      toast.error("Recruiters cannot save jobs");
+      return;
+    }
+    try {
+      const res = await axios.post(`${USER_API_END_POINT}/profile/save/${jobId}`, {}, {
+        withCredentials: true
+      });
+      if (res.data.success) {
+        toast.success(res.data.message);
+        dispatch(setUser(res.data.user));
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error saving job");
     }
   };
 
@@ -172,40 +198,52 @@ const JobDescriptionPage = () => {
               </div>
             </div>
 
-            {/* Apply Button */}
-            <div className="flex-shrink-0">
+            {/* Apply & Save Buttons */}
+            <div className="flex-shrink-0 flex items-center gap-3">
               {user?.role !== "recruiter" && (
-                <button
-                  onClick={isApplied ? null : applyJobHandler}
-                  disabled={isApplied || applying}
-                  className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 min-w-[160px] ${
-                    isApplied
-                      ? "bg-green-500/20 border border-green-500/50 text-green-300 cursor-default"
-                      : "text-white hover:-translate-y-1"
-                  }`}
-                  style={
-                    !isApplied
-                      ? {
-                          background: "linear-gradient(135deg, #F83002, #ff6b35)",
-                          boxShadow: "0 8px 24px rgba(248,48,2,0.4)",
-                        }
-                      : {}
-                  }
-                >
-                  {applying ? (
-                    <span className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                      Applying...
-                    </span>
-                  ) : isApplied ? (
-                    <span className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
-                      Applied!
-                    </span>
-                  ) : (
-                    "Apply Now"
-                  )}
-                </button>
+                <>
+                  <button
+                    onClick={handleSaveJob}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                      isSaved
+                        ? "bg-purple-500/20 text-purple-300 border border-purple-500/50"
+                        : "bg-white/10 text-white hover:bg-white/20 border border-white/20"
+                    }`}
+                  >
+                    <Bookmark className={`w-6 h-6 ${isSaved ? "fill-purple-300" : ""}`} />
+                  </button>
+                  <button
+                    onClick={isApplied ? null : applyJobHandler}
+                    disabled={isApplied || applying}
+                    className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 min-w-[160px] ${
+                      isApplied
+                        ? "bg-green-500/20 border border-green-500/50 text-green-300 cursor-default"
+                        : "text-white hover:-translate-y-1"
+                    }`}
+                    style={
+                      !isApplied
+                        ? {
+                            background: "linear-gradient(135deg, #F83002, #ff6b35)",
+                            boxShadow: "0 8px 24px rgba(248,48,2,0.4)",
+                          }
+                        : {}
+                    }
+                  >
+                    {applying ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        Applying...
+                      </span>
+                    ) : isApplied ? (
+                      <span className="flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5" />
+                        Applied!
+                      </span>
+                    ) : (
+                      "Apply Now"
+                    )}
+                  </button>
+                </>
               )}
             </div>
           </div>

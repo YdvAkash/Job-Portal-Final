@@ -279,3 +279,107 @@ export const updateJob = async (req, res) => {
     });
   }
 };
+
+export const getSavedJobs = async (req, res) => {
+  try {
+    const userId = req.user;
+    
+    // Need to dynamically import UserModel or rely on mongoose.model
+    const mongoose = (await import("mongoose")).default;
+    const User = mongoose.model("User");
+
+    const user = await User.findById(userId).populate({
+      path: 'profile.savedJobs',
+      populate: {
+        path: 'company'
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      savedJobs: user.profile.savedJobs || []
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+export const getJobAnalytics = async (req, res) => {
+  try {
+    const adminId = req.user;
+    
+    // Find all jobs by this admin
+    const jobs = await JobModel.find({ createdBy: adminId });
+    const jobIds = jobs.map(job => job._id);
+
+    // Get all applications for these jobs
+    const Application = (await import("mongoose")).default.model("Application");
+    const applications = await Application.find({ job: { $in: jobIds } });
+
+    // 1. Total stats
+    const totalJobs = jobs.length;
+    const totalApplications = applications.length;
+
+    // 2. Applications by status
+    const statusCounts = {
+      pending: 0,
+      accepted: 0,
+      rejected: 0
+    };
+    applications.forEach(app => {
+      if (statusCounts[app.status] !== undefined) {
+        statusCounts[app.status]++;
+      }
+    });
+
+    // 3. Applications over time (last 7 days)
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toISOString().split('T')[0];
+    }).reverse();
+
+    const applicationsByDate = {};
+    last7Days.forEach(date => applicationsByDate[date] = 0);
+
+    applications.forEach(app => {
+      const dateStr = new Date(app.createdAt).toISOString().split('T')[0];
+      if (applicationsByDate[dateStr] !== undefined) {
+        applicationsByDate[dateStr]++;
+      }
+    });
+
+    const timelineData = last7Days.map(date => ({
+      date: date.substring(5), // mm-dd
+      applications: applicationsByDate[date]
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalJobs,
+        totalApplications,
+        statusBreakdown: [
+          { name: "Pending", value: statusCounts.pending, fill: "#f59e0b" },
+          { name: "Accepted", value: statusCounts.accepted, fill: "#10b981" },
+          { name: "Rejected", value: statusCounts.rejected, fill: "#ef4444" }
+        ],
+        timelineData
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};

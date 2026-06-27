@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       immutable: true, // Makes the role field immutable
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: String,
+    verificationTokenExpires: Date,
     profile: {
       bio: {
         type: String,
@@ -35,6 +41,7 @@ const userSchema = new mongoose.Schema(
       profileImage: {
         type: String,
       },
+      savedJobs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
     },
   },
   { timestamps: true }

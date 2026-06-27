@@ -82,6 +82,7 @@ function Navbar() {
     }`;
 
   const recruiterLinks = [
+    { to: "/admin/dashboard", label: "Dashboard", icon: Home },
     { to: "/admin/companies", label: "Companies", icon: Building2 },
     { to: "/admin/jobs", label: "Jobs", icon: Briefcase },
   ];
